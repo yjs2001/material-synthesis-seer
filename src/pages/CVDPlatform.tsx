@@ -11,15 +11,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from '@/hooks/use-toast';
-import { ChevronLeft, ChevronRight, Filter, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Filter, Plus, Beaker, Atom } from 'lucide-react';
 
 interface PredictionParams {
   substrateType: string;
-  wSRatio: number;
+  metalChalcogenRatio: number;
   hArRatio: number;
   pressureType: string;
-  wTemperature: number;
-  sTemperature: number;
+  metalTemperature: number;
+  chalcogenTemperature: number;
   substratePosition: string;
   reactionTime: number;
   saltAddition: string;
@@ -38,11 +38,11 @@ const CVDPlatform = () => {
   const [selectedMaterial, setSelectedMaterial] = useState<string>('ws2');
   const [formData, setFormData] = useState<PredictionParams>({
     substrateType: '',
-    wSRatio: 0,
+    metalChalcogenRatio: 0,
     hArRatio: 0,
     pressureType: '',
-    wTemperature: 0,
-    sTemperature: 0,
+    metalTemperature: 0,
+    chalcogenTemperature: 0,
     substratePosition: '',
     reactionTime: 0,
     saltAddition: ''
@@ -58,10 +58,42 @@ const CVDPlatform = () => {
   const [tempRemarks, setTempRemarks] = useState<string>('');
 
   const materials = [
-    { value: 'ws2', label: 'WS₂', fullName: 'Tungsten Disulfide' },
-    { value: 'mos2', label: 'MoS₂', fullName: 'Molybdenum Disulfide' },
-    { value: 'wse2', label: 'WSe₂', fullName: 'Tungsten Diselenide' },
-    { value: 'mose2', label: 'MoSe₂', fullName: 'Molybdenum Diselenide' }
+    { 
+      value: 'ws2', 
+      label: 'WS₂', 
+      fullName: 'Tungsten Disulfide',
+      ratio: 'W/S',
+      metal: 'W',
+      chalcogen: 'S',
+      color: 'from-blue-500 to-indigo-600'
+    },
+    { 
+      value: 'mos2', 
+      label: 'MoS₂', 
+      fullName: 'Molybdenum Disulfide',
+      ratio: 'Mo/S',
+      metal: 'Mo',
+      chalcogen: 'S',
+      color: 'from-emerald-500 to-teal-600'
+    },
+    { 
+      value: 'wse2', 
+      label: 'WSe₂', 
+      fullName: 'Tungsten Diselenide',
+      ratio: 'W/Se',
+      metal: 'W',
+      chalcogen: 'Se',
+      color: 'from-purple-500 to-violet-600'
+    },
+    { 
+      value: 'mose2', 
+      label: 'MoSe₂', 
+      fullName: 'Molybdenum Diselenide',
+      ratio: 'Mo/Se',
+      metal: 'Mo',
+      chalcogen: 'Se',
+      color: 'from-orange-500 to-red-600'
+    }
   ];
 
   const recordsPerPage = 10;
@@ -118,7 +150,7 @@ const CVDPlatform = () => {
 
   const validateForm = (): boolean => {
     const requiredFields = ['substrateType', 'pressureType', 'substratePosition', 'saltAddition'];
-    const numericFields = ['wSRatio', 'hArRatio', 'wTemperature', 'sTemperature', 'reactionTime'];
+    const numericFields = ['metalChalcogenRatio', 'hArRatio', 'metalTemperature', 'chalcogenTemperature', 'reactionTime'];
     
     for (const field of requiredFields) {
       if (!formData[field as keyof PredictionParams]) {
@@ -236,10 +268,10 @@ const CVDPlatform = () => {
 
   const getPredictionColor = (prediction: string): string => {
     switch (prediction) {
-      case 'excellent': return 'bg-green-100 text-green-800 border-green-200';
-      case 'qualified': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'no yield': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'excellent': return 'bg-emerald-50 text-emerald-700 border-emerald-200 ring-emerald-100';
+      case 'qualified': return 'bg-amber-50 text-amber-700 border-amber-200 ring-amber-100';
+      case 'no yield': return 'bg-rose-50 text-rose-700 border-rose-200 ring-rose-100';
+      default: return 'bg-slate-50 text-slate-700 border-slate-200 ring-slate-100';
     }
   };
 
@@ -251,59 +283,74 @@ const CVDPlatform = () => {
   const currentRecords = filteredHistory.slice(startIndex, endIndex);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            CVD Synthesis Prediction Platform
-          </h1>
-          <p className="text-gray-600">
-            Predict synthesis outcomes for 2D transition metal dichalcogenides
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <div className="max-w-7xl mx-auto p-6">
+        <div className="mb-8 text-center">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="p-3 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full">
+              <Atom className="h-8 w-8 text-white" />
+            </div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+              CVD Synthesis Prediction Platform
+            </h1>
+          </div>
+          <p className="text-slate-600 text-lg max-w-2xl mx-auto">
+            Advanced prediction system for 2D transition metal dichalcogenide synthesis outcomes
           </p>
+          <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-indigo-500 mx-auto mt-4 rounded-full"></div>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
+        <div className="grid lg:grid-cols-3 gap-8">
           {/* Prediction Panel */}
-          <div className="lg:col-span-2">
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+          <div className="lg:col-span-2 space-y-6">
+            <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
+              <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50 border-b">
+                <CardTitle className="flex items-center gap-2 text-slate-800">
+                  <Beaker className="h-5 w-5 text-blue-600" />
                   Material Selection
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-6">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {materials.map((material) => (
                     <button
                       key={material.value}
                       onClick={() => setSelectedMaterial(material.value)}
-                      className={`p-4 rounded-lg border-2 transition-all ${
+                      className={`p-4 rounded-xl border-2 transition-all duration-300 group ${
                         selectedMaterial === material.value
-                          ? 'border-blue-500 bg-blue-50'
-                          : 'border-gray-200 hover:border-gray-300'
+                          ? `border-transparent bg-gradient-to-br ${material.color} text-white shadow-lg transform scale-105`
+                          : 'border-slate-200 hover:border-slate-300 bg-white hover:shadow-md hover:scale-102'
                       }`}
                     >
-                      <div className="font-semibold text-lg">{material.label}</div>
-                      <div className="text-sm text-gray-600">{material.fullName}</div>
+                      <div className={`font-bold text-lg mb-1 ${
+                        selectedMaterial === material.value ? 'text-white' : 'text-slate-800'
+                      }`}>
+                        {material.label}
+                      </div>
+                      <div className={`text-sm ${
+                        selectedMaterial === material.value ? 'text-white/90' : 'text-slate-600'
+                      }`}>
+                        {material.fullName}
+                      </div>
                     </button>
                   ))}
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>
+            <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
+              <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50 border-b">
+                <CardTitle className="text-slate-800">
                   Synthesis Parameters - {getCurrentMaterial()?.label}
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-6">
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="substrateType">Substrate Type</Label>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="substrateType" className="text-slate-700 font-medium">Substrate Type</Label>
                       <Select value={formData.substrateType} onValueChange={(value) => handleInputChange('substrateType', value)}>
-                        <SelectTrigger>
+                        <SelectTrigger className="bg-white border-slate-200 focus:border-blue-400 focus:ring-blue-100">
                           <SelectValue placeholder="Select substrate" />
                         </SelectTrigger>
                         <SelectContent>
@@ -313,10 +360,10 @@ const CVDPlatform = () => {
                       </Select>
                     </div>
 
-                    <div>
-                      <Label htmlFor="pressureType">Pressure Type</Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="pressureType" className="text-slate-700 font-medium">Pressure Type</Label>
                       <Select value={formData.pressureType} onValueChange={(value) => handleInputChange('pressureType', value)}>
-                        <SelectTrigger>
+                        <SelectTrigger className="bg-white border-slate-200 focus:border-blue-400 focus:ring-blue-100">
                           <SelectValue placeholder="Select pressure" />
                         </SelectTrigger>
                         <SelectContent>
@@ -326,52 +373,62 @@ const CVDPlatform = () => {
                       </Select>
                     </div>
 
-                    <div>
-                      <Label htmlFor="wSRatio">W/S Ratio</Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="metalChalcogenRatio" className="text-slate-700 font-medium">
+                        {getCurrentMaterial()?.ratio} Ratio
+                      </Label>
                       <Input
                         type="number"
                         step="0.1"
-                        value={formData.wSRatio || ''}
-                        onChange={(e) => handleInputChange('wSRatio', parseFloat(e.target.value) || 0)}
-                        placeholder="Enter W/S ratio"
+                        value={formData.metalChalcogenRatio || ''}
+                        onChange={(e) => handleInputChange('metalChalcogenRatio', parseFloat(e.target.value) || 0)}
+                        placeholder={`Enter ${getCurrentMaterial()?.ratio} ratio`}
+                        className="bg-white border-slate-200 focus:border-blue-400 focus:ring-blue-100"
                       />
                     </div>
 
-                    <div>
-                      <Label htmlFor="hArRatio">H₂/Ar Ratio</Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="hArRatio" className="text-slate-700 font-medium">H₂/Ar Ratio</Label>
                       <Input
                         type="number"
                         step="0.1"
                         value={formData.hArRatio || ''}
                         onChange={(e) => handleInputChange('hArRatio', parseFloat(e.target.value) || 0)}
                         placeholder="Enter H₂/Ar ratio"
+                        className="bg-white border-slate-200 focus:border-blue-400 focus:ring-blue-100"
                       />
                     </div>
 
-                    <div>
-                      <Label htmlFor="wTemperature">W Temperature (°C)</Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="metalTemperature" className="text-slate-700 font-medium">
+                        {getCurrentMaterial()?.metal} Temperature (°C)
+                      </Label>
                       <Input
                         type="number"
-                        value={formData.wTemperature || ''}
-                        onChange={(e) => handleInputChange('wTemperature', parseInt(e.target.value) || 0)}
-                        placeholder="Enter W temperature"
+                        value={formData.metalTemperature || ''}
+                        onChange={(e) => handleInputChange('metalTemperature', parseInt(e.target.value) || 0)}
+                        placeholder={`Enter ${getCurrentMaterial()?.metal} temperature`}
+                        className="bg-white border-slate-200 focus:border-blue-400 focus:ring-blue-100"
                       />
                     </div>
 
-                    <div>
-                      <Label htmlFor="sTemperature">S Temperature (°C)</Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="chalcogenTemperature" className="text-slate-700 font-medium">
+                        {getCurrentMaterial()?.chalcogen} Temperature (°C)
+                      </Label>
                       <Input
                         type="number"
-                        value={formData.sTemperature || ''}
-                        onChange={(e) => handleInputChange('sTemperature', parseInt(e.target.value) || 0)}
-                        placeholder="Enter S temperature"
+                        value={formData.chalcogenTemperature || ''}
+                        onChange={(e) => handleInputChange('chalcogenTemperature', parseInt(e.target.value) || 0)}
+                        placeholder={`Enter ${getCurrentMaterial()?.chalcogen} temperature`}
+                        className="bg-white border-slate-200 focus:border-blue-400 focus:ring-blue-100"
                       />
                     </div>
 
-                    <div>
-                      <Label htmlFor="substratePosition">Substrate Position</Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="substratePosition" className="text-slate-700 font-medium">Substrate Position</Label>
                       <Select value={formData.substratePosition} onValueChange={(value) => handleInputChange('substratePosition', value)}>
-                        <SelectTrigger>
+                        <SelectTrigger className="bg-white border-slate-200 focus:border-blue-400 focus:ring-blue-100">
                           <SelectValue placeholder="Select position" />
                         </SelectTrigger>
                         <SelectContent>
@@ -381,20 +438,21 @@ const CVDPlatform = () => {
                       </Select>
                     </div>
 
-                    <div>
-                      <Label htmlFor="reactionTime">Reaction Time (minutes)</Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="reactionTime" className="text-slate-700 font-medium">Reaction Time (minutes)</Label>
                       <Input
                         type="number"
                         value={formData.reactionTime || ''}
                         onChange={(e) => handleInputChange('reactionTime', parseInt(e.target.value) || 0)}
                         placeholder="Enter reaction time"
+                        className="bg-white border-slate-200 focus:border-blue-400 focus:ring-blue-100"
                       />
                     </div>
 
-                    <div className="md:col-span-2">
-                      <Label htmlFor="saltAddition">Salt Addition</Label>
+                    <div className="space-y-2 md:col-span-2">
+                      <Label htmlFor="saltAddition" className="text-slate-700 font-medium">Salt Addition</Label>
                       <Select value={formData.saltAddition} onValueChange={(value) => handleInputChange('saltAddition', value)}>
-                        <SelectTrigger>
+                        <SelectTrigger className="bg-white border-slate-200 focus:border-blue-400 focus:ring-blue-100">
                           <SelectValue placeholder="Select salt addition" />
                         </SelectTrigger>
                         <SelectContent>
@@ -405,8 +463,17 @@ const CVDPlatform = () => {
                     </div>
                   </div>
 
-                  <Button type="submit" disabled={isLoading} className="w-full">
-                    {isLoading ? 'Predicting...' : 'Predict Synthesis Outcome'}
+                  <Button 
+                    type="submit" 
+                    disabled={isLoading} 
+                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        Predicting...
+                      </div>
+                    ) : 'Predict Synthesis Outcome'}
                   </Button>
                 </form>
               </CardContent>
@@ -414,18 +481,18 @@ const CVDPlatform = () => {
           </div>
 
           {/* Results Panel */}
-          <div>
+          <div className="space-y-6">
             {currentPrediction && (
-              <Card className="mb-6">
-                <CardHeader>
-                  <CardTitle>Prediction Result</CardTitle>
+              <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
+                <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50 border-b">
+                  <CardTitle className="text-slate-800">Prediction Result</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-6">
                   <div className="text-center">
-                    <div className={`inline-block px-6 py-3 rounded-lg font-semibold text-lg ${getPredictionColor(currentPrediction)}`}>
+                    <div className={`inline-block px-8 py-4 rounded-xl font-bold text-xl border-2 shadow-lg ${getPredictionColor(currentPrediction)}`}>
                       {currentPrediction.toUpperCase()}
                     </div>
-                    <p className="text-sm text-gray-600 mt-2">
+                    <p className="text-slate-600 mt-3 font-medium">
                       For {getCurrentMaterial()?.label} synthesis
                     </p>
                   </div>
@@ -434,15 +501,15 @@ const CVDPlatform = () => {
             )}
 
             {/* History Panel */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Filter className="h-5 w-5" />
+            <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
+              <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50 border-b">
+                <CardTitle className="flex items-center gap-2 text-slate-800">
+                  <Filter className="h-5 w-5 text-blue-600" />
                   Prediction History
                 </CardTitle>
-                <div className="flex gap-2 mt-4">
+                <div className="flex gap-3 mt-4">
                   <Select value={filterMaterial} onValueChange={setFilterMaterial}>
-                    <SelectTrigger className="w-32">
+                    <SelectTrigger className="w-36 bg-white border-slate-200">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -456,7 +523,7 @@ const CVDPlatform = () => {
                   </Select>
                   
                   <Select value={filterPrediction} onValueChange={setFilterPrediction}>
-                    <SelectTrigger className="w-32">
+                    <SelectTrigger className="w-32 bg-white border-slate-200">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -468,45 +535,47 @@ const CVDPlatform = () => {
                   </Select>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-6">
                 {currentRecords.length > 0 ? (
                   <>
                     <div className="space-y-4">
                       {currentRecords.map((record) => (
-                        <div key={record.id} className="border rounded-lg p-4 bg-white">
-                          <div className="flex justify-between items-start mb-2">
-                            <div>
-                              <Badge variant="outline" className="mr-2">
+                        <div key={record.id} className="border border-slate-200 rounded-xl p-4 bg-white/70 backdrop-blur-sm hover:shadow-md transition-all duration-300">
+                          <div className="flex justify-between items-start mb-3">
+                            <div className="flex gap-2">
+                              <Badge variant="outline" className="border-slate-300 text-slate-700">
                                 {materials.find(m => m.value === record.material)?.label}
                               </Badge>
-                              <Badge className={getPredictionColor(record.prediction)}>
+                              <Badge className={`border-2 ${getPredictionColor(record.prediction)}`}>
                                 {record.prediction}
                               </Badge>
                             </div>
-                            <span className="text-xs text-gray-500">
+                            <span className="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded-md">
                               {new Date(record.timestamp).toLocaleString()}
                             </span>
                           </div>
                           
-                          <div className="text-sm text-gray-600 mb-2">
-                            <div>Substrate: {record.params.substrateType}</div>
-                            <div>Pressure: {record.params.pressureType}</div>
-                            <div>Temp: {record.params.wTemperature}°C / {record.params.sTemperature}°C</div>
+                          <div className="text-sm text-slate-600 mb-3 grid grid-cols-2 gap-2">
+                            <div><span className="font-medium">Substrate:</span> {record.params.substrateType}</div>
+                            <div><span className="font-medium">Pressure:</span> {record.params.pressureType}</div>
+                            <div><span className="font-medium">Metal Temp:</span> {record.params.metalTemperature}°C</div>
+                            <div><span className="font-medium">Chalcogen Temp:</span> {record.params.chalcogenTemperature}°C</div>
                           </div>
                           
-                          <div className="mt-2">
+                          <div className="mt-3 pt-3 border-t border-slate-200">
                             {editingRemarks === record.id ? (
-                              <div className="space-y-2">
+                              <div className="space-y-3">
                                 <Textarea
                                   value={tempRemarks}
                                   onChange={(e) => setTempRemarks(e.target.value)}
                                   placeholder="Add remarks..."
-                                  className="text-sm"
+                                  className="text-sm bg-white border-slate-200"
                                 />
                                 <div className="flex gap-2">
                                   <Button 
                                     size="sm" 
                                     onClick={() => handleRemarksEdit(record.id, tempRemarks)}
+                                    className="bg-emerald-600 hover:bg-emerald-700"
                                   >
                                     Save
                                   </Button>
@@ -517,6 +586,7 @@ const CVDPlatform = () => {
                                       setEditingRemarks(null);
                                       setTempRemarks('');
                                     }}
+                                    className="border-slate-300"
                                   >
                                     Cancel
                                   </Button>
@@ -524,7 +594,7 @@ const CVDPlatform = () => {
                               </div>
                             ) : (
                               <div className="flex items-center gap-2">
-                                <span className="text-sm text-gray-700">
+                                <span className="text-sm text-slate-700 flex-1">
                                   {record.remarks || 'No remarks'}
                                 </span>
                                 <Button
@@ -534,6 +604,7 @@ const CVDPlatform = () => {
                                     setEditingRemarks(record.id);
                                     setTempRemarks(record.remarks || '');
                                   }}
+                                  className="text-slate-500 hover:text-slate-700"
                                 >
                                   <Plus className="h-3 w-3" />
                                 </Button>
@@ -545,17 +616,18 @@ const CVDPlatform = () => {
                     </div>
                     
                     {totalPages > 1 && (
-                      <div className="flex items-center justify-between mt-4">
+                      <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-200">
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                           disabled={currentPage === 1}
+                          className="border-slate-300"
                         >
                           <ChevronLeft className="h-4 w-4" />
                         </Button>
                         
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm text-slate-600 bg-slate-100 px-3 py-1 rounded-md">
                           Page {currentPage} of {totalPages}
                         </span>
                         
@@ -564,6 +636,7 @@ const CVDPlatform = () => {
                           size="sm"
                           onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                           disabled={currentPage === totalPages}
+                          className="border-slate-300"
                         >
                           <ChevronRight className="h-4 w-4" />
                         </Button>
@@ -571,8 +644,12 @@ const CVDPlatform = () => {
                     )}
                   </>
                 ) : (
-                  <div className="text-center text-gray-500 py-8">
-                    No prediction history found
+                  <div className="text-center text-slate-500 py-12">
+                    <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Filter className="h-8 w-8 text-slate-400" />
+                    </div>
+                    <p className="text-lg font-medium">No prediction history found</p>
+                    <p className="text-sm mt-1">Start by making your first prediction</p>
                   </div>
                 )}
               </CardContent>
