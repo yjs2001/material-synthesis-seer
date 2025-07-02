@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -187,8 +186,21 @@ const CVDPlatform = () => {
     setCurrentPrediction(null);
     
     try {
-      // Simulate API call since we don't have a real backend
-      const response = await fetch(`/predict/${selectedMaterial}`, {
+      // Map material values to API endpoints
+      const materialMap: { [key: string]: string } = {
+        'ws2': 'WSe2',
+        'mos2': 'MoS2', 
+        'wse2': 'WSe2',
+        'mose2': 'MoSe2'
+      };
+      
+      const apiMaterial = materialMap[selectedMaterial] || 'WSe2';
+      const apiUrl = `http://127.0.0.1:5000/predict/${apiMaterial}`;
+      
+      console.log('Sending request to:', apiUrl);
+      console.log('Request data:', formData);
+      
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -196,60 +208,52 @@ const CVDPlatform = () => {
         body: JSON.stringify(formData),
       });
       
-      let prediction: string;
+      console.log('Response status:', response.status);
       
       if (response.ok) {
         const data = await response.json();
-        prediction = data.prediction;
+        console.log('Response data:', data);
+        
+        const prediction = data.prediction;
+        setCurrentPrediction(prediction);
+        
+        // Add to history
+        const newRecord: PredictionRecord = {
+          id: Date.now().toString(),
+          material: selectedMaterial,
+          params: { ...formData },
+          prediction,
+          timestamp: new Date().toISOString()
+        };
+        
+        const newHistory = [newRecord, ...history];
+        setHistory(newHistory);
+        setCookie('cvd_history', JSON.stringify(newHistory));
+        
+        toast({
+          title: "Prediction Complete",
+          description: `Result: ${prediction}`,
+        });
+        
       } else {
-        // Simulate prediction for demo purposes
-        const predictions = ['excellent', 'qualified', 'no yield'];
-        prediction = predictions[Math.floor(Math.random() * predictions.length)];
+        console.error('API Error:', response.status, response.statusText);
+        const errorText = await response.text();
+        console.error('Error details:', errorText);
+        
+        toast({
+          title: "API Error",
+          description: `Server returned ${response.status}: ${response.statusText}`,
+          variant: "destructive"
+        });
       }
       
-      setCurrentPrediction(prediction);
-      
-      // Add to history
-      const newRecord: PredictionRecord = {
-        id: Date.now().toString(),
-        material: selectedMaterial,
-        params: { ...formData },
-        prediction,
-        timestamp: new Date().toISOString()
-      };
-      
-      const newHistory = [newRecord, ...history];
-      setHistory(newHistory);
-      setCookie('cvd_history', JSON.stringify(newHistory));
-      
-      toast({
-        title: "Prediction Complete",
-        description: `Result: ${prediction}`,
-      });
-      
     } catch (error) {
-      console.error('Prediction error:', error);
-      
-      // Fallback simulation
-      const predictions = ['excellent', 'qualified', 'no yield'];
-      const prediction = predictions[Math.floor(Math.random() * predictions.length)];
-      setCurrentPrediction(prediction);
-      
-      const newRecord: PredictionRecord = {
-        id: Date.now().toString(),
-        material: selectedMaterial,
-        params: { ...formData },
-        prediction,
-        timestamp: new Date().toISOString()
-      };
-      
-      const newHistory = [newRecord, ...history];
-      setHistory(newHistory);
-      setCookie('cvd_history', JSON.stringify(newHistory));
+      console.error('Network error:', error);
       
       toast({
-        title: "Prediction Complete",
-        description: `Result: ${prediction}`,
+        title: "Network Error",
+        description: "Failed to connect to the prediction server. Please check if the server is running.",
+        variant: "destructive"
       });
     } finally {
       setIsLoading(false);
