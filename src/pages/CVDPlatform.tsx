@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from '@/hooks/use-toast';
-import { ChevronLeft, ChevronRight, Filter, Plus, Beaker, Atom } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Filter, Plus, Beaker, Atom, Trash2 } from 'lucide-react';
 
 interface PredictionParams {
   substrateType: string;
@@ -110,6 +110,11 @@ const CVDPlatform = () => {
       }
     }
   }, []);
+
+  // Clear prediction when material changes
+  useEffect(() => {
+    setCurrentPrediction(null);
+  }, [selectedMaterial]);
 
   // Filter history when filters change
   useEffect(() => {
@@ -268,6 +273,17 @@ const CVDPlatform = () => {
     setCookie('cvd_history', JSON.stringify(updatedHistory));
     setEditingRemarks(null);
     setTempRemarks('');
+  };
+
+  const handleDeleteRecord = (recordId: string) => {
+    const updatedHistory = history.filter(record => record.id !== recordId);
+    setHistory(updatedHistory);
+    setCookie('cvd_history', JSON.stringify(updatedHistory));
+    
+    toast({
+      title: "Record Deleted",
+      description: "Prediction record has been removed from history.",
+    });
   };
 
   const getPredictionColor = (prediction: string): string => {
@@ -554,9 +570,19 @@ const CVDPlatform = () => {
                                 {record.prediction}
                               </Badge>
                             </div>
-                            <span className="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded-md">
-                              {new Date(record.timestamp).toLocaleString()}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded-md">
+                                {new Date(record.timestamp).toLocaleString()}
+                              </span>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleDeleteRecord(record.id)}
+                                className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1 h-8 w-8"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </div>
                           
                           <div className="text-sm text-slate-600 mb-3 grid grid-cols-2 gap-2">
