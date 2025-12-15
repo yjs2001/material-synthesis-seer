@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
-import { Atom, Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
+import { Atom, Eye, EyeOff, Mail, Lock, User, Building2 } from 'lucide-react';
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -20,6 +20,7 @@ const Auth = () => {
   const [registerData, setRegisterData] = useState({ 
     username: '', 
     email: '', 
+    labName: '',
     password: '', 
     confirmPassword: '' 
   });
@@ -88,7 +89,7 @@ const Auth = () => {
     });
     
     setActiveTab('login');
-    setRegisterData({ username: '', email: '', password: '', confirmPassword: '' });
+    setRegisterData({ username: '', email: '', labName: '', password: '', confirmPassword: '' });
   };
 
   const handleForgotPassword = (e: React.FormEvent) => {
@@ -218,6 +219,21 @@ const Auth = () => {
                       placeholder="Enter email address"
                       value={registerData.email}
                       onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}
+                    className="pl-10"
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="register-lab">Laboratory Name</Label>
+                  <div className="relative">
+                    <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <Input
+                      id="register-lab"
+                      type="text"
+                      placeholder="Enter laboratory name"
+                      value={registerData.labName}
+                      onChange={(e) => setRegisterData({ ...registerData, labName: e.target.value })}
                       className="pl-10"
                     />
                   </div>
