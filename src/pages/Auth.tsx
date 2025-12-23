@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
-import { Atom, Eye, EyeOff, Mail, Lock, User, Building2 } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, Building2 } from 'lucide-react';
+import universityLogo from '@/assets/university-logo.png';
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -125,9 +126,11 @@ const Auth = () => {
       <Card className="w-full max-w-md relative z-10 shadow-xl border-0 bg-white/80 backdrop-blur-sm">
         <CardHeader className="text-center pb-2">
           <div className="flex justify-center mb-4">
-            <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
-              <Atom className="h-8 w-8 text-white" />
-            </div>
+            <img 
+              src={universityLogo} 
+              alt="University Logo" 
+              className="h-20 w-20 object-contain"
+            />
           </div>
           <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
             CVD Process Prediction Platform

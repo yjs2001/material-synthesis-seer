@@ -10,7 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from '@/hooks/use-toast';
-import { ChevronLeft, ChevronRight, Filter, Plus, Beaker, Atom, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Filter, Plus, Beaker, Trash2 } from 'lucide-react';
+import universityLogo from '@/assets/university-logo.png';
 
 interface PredictionParams {
   substrateType: string;
@@ -307,9 +308,11 @@ const CVDPlatform = () => {
       <div className="max-w-7xl mx-auto p-6">
         <div className="mb-8 text-center">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="p-3 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full">
-              <Atom className="h-8 w-8 text-white" />
-            </div>
+            <img 
+              src={universityLogo} 
+              alt="University Logo" 
+              className="h-16 w-16 object-contain"
+            />
             <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
               CVD Synthesis Prediction Platform
             </h1>
